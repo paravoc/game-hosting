@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Игра в Telegram</title>
+    <title>Юля: Призвание врача</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         * {
@@ -17,504 +17,538 @@
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             min-height: 100vh;
-            padding: 20px;
+            padding: 15px;
+            line-height: 1.5;
         }
 
-        .container {
-            max-width: 400px;
+        .game-container {
+            max-width: 100%;
             margin: 0 auto;
-            text-align: center;
-        }
-
-        .header {
-            margin-bottom: 30px;
-        }
-
-        .header h1 {
-            font-size: 28px;
-            margin-bottom: 10px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-        }
-
-        .game-card {
             background: rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(10px);
-            border-radius: 20px;
-            padding: 25px;
-            margin: 15px 0;
+            border-radius: 15px;
+            padding: 15px;
             border: 1px solid rgba(255, 255, 255, 0.2);
-            transition: transform 0.3s ease;
+            min-height: 85vh;
         }
 
-        .game-card:hover {
-            transform: translateY(-5px);
-        }
-
-        .game-title {
-            font-size: 20px;
-            margin-bottom: 15px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-        }
-
-        .game-description {
-            font-size: 14px;
-            opacity: 0.9;
-            margin-bottom: 20px;
-            line-height: 1.4;
-        }
-
-        .btn {
-            background: linear-gradient(45deg, #4CAF50, #45a049);
-            color: white;
-            border: none;
-            padding: 12px 25px;
-            border-radius: 50px;
-            font-size: 16px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            margin: 5px;
-            width: 100%;
-            max-width: 200px;
-        }
-
-        .btn:hover {
-            transform: scale(1.05);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-        }
-
-        .btn-secondary {
-            background: linear-gradient(45deg, #2196F3, #1976D2);
-        }
-
-        /* Стили для игры-кликера */
-        #clickerGame {
-            display: none;
-        }
-
-        .clicker-display {
-            font-size: 48px;
-            font-weight: bold;
-            margin: 20px 0;
-            text-shadow: 3px 3px 6px rgba(0,0,0,0.3);
-        }
-
-        .click-btn {
-            background: linear-gradient(45deg, #FF5722, #E64A19);
-            padding: 20px 40px;
-            font-size: 20px;
-            border-radius: 50%;
-            width: 120px;
-            height: 120px;
-            border: none;
-            color: white;
-            cursor: pointer;
-            transition: all 0.1s ease;
-            margin: 20px 0;
-        }
-
-        .click-btn:active {
-            transform: scale(0.95);
+        .character-img {
+            text-align: center;
+            font-size: 60px;
+            margin: 10px 0;
         }
 
         .stats {
-            display: flex;
-            justify-content: space-around;
-            margin: 20px 0;
-            font-size: 14px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin: 15px 0;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 12px;
+            border-radius: 10px;
         }
 
         .stat-item {
-            background: rgba(255,255,255,0.1);
-            padding: 10px;
-            border-radius: 10px;
-            flex: 1;
-            margin: 0 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 5px;
         }
 
-        /* Стили для викторины */
-        #quizGame {
+        .stat-bar {
+            width: 60px;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .stat-fill {
+            height: 100%;
+            background: #4CAF50;
+            transition: width 0.3s ease;
+        }
+
+        .health .stat-fill { background: #f44336; }
+        .energy .stat-fill { background: #ff9800; }
+        .knowledge .stat-fill { background: #2196F3; }
+        .money .stat-fill { background: #4CAF50; }
+
+        .story-text {
+            background: rgba(0, 0, 0, 0.4);
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+            min-height: 120px;
+            font-size: 14px;
+        }
+
+        .choices {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin: 15px 0;
+        }
+
+        .choice-btn {
+            background: linear-gradient(45deg, #FF5722, #E64A19);
+            color: white;
+            border: none;
+            padding: 15px;
+            border-radius: 10px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: left;
+        }
+
+        .choice-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        .choice-btn:active {
+            transform: translateY(0);
+        }
+
+        .choice-btn.secondary {
+            background: linear-gradient(45deg, #2196F3, #1976D2);
+        }
+
+        .choice-btn.success {
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+        }
+
+        .choice-btn.warning {
+            background: linear-gradient(45deg, #ff9800, #f57c00);
+        }
+
+        .location {
+            text-align: center;
+            font-size: 12px;
+            opacity: 0.8;
+            margin-bottom: 10px;
+        }
+
+        .day-counter {
+            text-align: center;
+            font-size: 12px;
+            margin-bottom: 10px;
+            background: rgba(255,255,255,0.2);
+            padding: 5px;
+            border-radius: 20px;
+        }
+
+        .event-result {
+            background: rgba(255, 255, 255, 0.9);
+            color: #333;
+            padding: 10px;
+            border-radius: 8px;
+            margin: 10px 0;
+            font-size: 13px;
+            border-left: 4px solid #4CAF50;
+        }
+
+        .hidden {
             display: none;
         }
 
-        .question {
-            font-size: 18px;
-            margin-bottom: 20px;
-            line-height: 1.4;
+        /* Анимации */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
-        .options {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        .option-btn {
-            background: rgba(255,255,255,0.1);
-            border: 2px solid rgba(255,255,255,0.3);
-            color: white;
-            padding: 15px;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .option-btn:hover {
-            background: rgba(255,255,255,0.2);
-            border-color: rgba(255,255,255,0.5);
-        }
-
-        .option-btn.correct {
-            background: linear-gradient(45deg, #4CAF50, #45a049);
-            border-color: #4CAF50;
-        }
-
-        .option-btn.wrong {
-            background: linear-gradient(45deg, #f44336, #d32f2f);
-            border-color: #f44336;
-        }
-
-        .result {
-            margin: 20px 0;
-            padding: 15px;
-            border-radius: 10px;
-            font-weight: bold;
-        }
-
-        .result.success {
-            background: rgba(76, 175, 80, 0.3);
-            border: 1px solid #4CAF50;
-        }
-
-        .result.error {
-            background: rgba(244, 67, 54, 0.3);
-            border: 1px solid #f44336;
-        }
-
-        .back-btn {
-            background: rgba(255,255,255,0.1);
-            color: white;
-            border: 1px solid rgba(255,255,255,0.3);
-            padding: 10px 20px;
-            border-radius: 50px;
-            cursor: pointer;
-            margin-top: 20px;
+        .fade-in {
+            animation: fadeIn 0.5s ease;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <!-- Главное меню -->
-        <div id="mainMenu">
-            <div class="header">
-                <h1>🎮 Игровой Центр</h1>
-                <p>Выберите игру для начала</p>
-            </div>
-
-            <div class="game-card">
-                <div class="game-title">🖱️ Кликер</div>
-                <div class="game-description">
-                    Нажимайте на кнопку чтобы зарабатывать очки! 
-                    Простая и аддиктивная игра.
-                </div>
-                <button class="btn" onclick="startGame('clicker')">Играть</button>
-            </div>
-
-            <div class="game-card">
-                <div class="game-title">❓ Викторина</div>
-                <div class="game-description">
-                    Проверьте свои знания! Ответьте на вопросы из разных категорий.
-                </div>
-                <button class="btn btn-secondary" onclick="startGame('quiz')">Играть</button>
-            </div>
-
-            <div class="game-card">
-                <div class="game-title">📊 Статистика</div>
-                <div class="game-description">
-                    Посмотрите ваши результаты и достижения в играх.
-                </div>
-                <button class="btn" onclick="showStats()">Посмотреть</button>
+    <div class="game-container">
+        <!-- Экран загрузки -->
+        <div id="loadingScreen">
+            <div class="character-img">👩‍⚕️</div>
+            <div class="story-text">
+                <h2>Юля: Призвание врача</h2>
+                <p>Загрузка вашей медицинской карьеры...</p>
             </div>
         </div>
 
-        <!-- Игра-кликер -->
-        <div id="clickerGame">
-            <div class="header">
-                <h1>🖱️ Кликер игра</h1>
-            </div>
+        <!-- Основной игровой экран -->
+        <div id="gameScreen" class="hidden">
+            <!-- Статус персонажа -->
+            <div class="character-img" id="characterEmoji">👩‍🎓</div>
+            <div class="location" id="location">Медицинский университет</div>
+            <div class="day-counter" id="dayCounter">День 1 из 30</div>
             
-            <div class="game-card">
-                <div class="clicker-display" id="clickCount">0</div>
-                <button class="click-btn" onclick="incrementClick()">КЛИК!</button>
-                
-                <div class="stats">
-                    <div class="stat-item">
-                        <div>💪 Сила</div>
-                        <div id="powerLevel">1</div>
-                    </div>
-                    <div class="stat-item">
-                        <div>⚡ В секунду</div>
-                        <div id="clicksPerSecond">0</div>
-                    </div>
+            <div class="stats">
+                <div class="stat-item">
+                    <span>❤️ Здоровье</span>
+                    <div class="stat-bar"><div class="stat-fill health" id="healthBar" style="width: 100%;"></div></div>
                 </div>
+                <div class="stat-item">
+                    <span>⚡ Энергия</span>
+                    <div class="stat-bar"><div class="stat-fill energy" id="energyBar" style="width: 100%;"></div></div>
+                </div>
+                <div class="stat-item">
+                    <span>📚 Знания</span>
+                    <div class="stat-bar"><div class="stat-fill knowledge" id="knowledgeBar" style="width: 30%;"></div></div>
+                </div>
+                <div class="stat-item">
+                    <span>💰 Деньги</span>
+                    <div class="stat-bar"><div class="stat-fill money" id="moneyBar" style="width: 50%;"></div></div>
+                </div>
+            </div>
 
-                <button class="btn" onclick="upgradePower()">💪 Улучшить силу (+1) - 10 очков</button>
-                <button class="btn btn-secondary" onclick="saveClickerScore()">💾 Сохранить результат</button>
-                <button class="back-btn" onclick="backToMenu()">← Назад в меню</button>
+            <!-- Текст истории -->
+            <div class="story-text" id="storyText">
+                Добро пожаловать в медицинский университет! Вы - Юля, рыжеволосая зеленоглазая студентка, которая мечтает стать врачом. Ваш путь начинается...
+            </div>
+
+            <!-- Результат события -->
+            <div class="event-result hidden" id="eventResult"></div>
+
+            <!-- Кнопки выбора -->
+            <div class="choices" id="choicesContainer">
+                <!-- Кнопки будут генерироваться здесь -->
             </div>
         </div>
 
-        <!-- Викторина -->
-        <div id="quizGame">
-            <div class="header">
-                <h1>❓ Викторина</h1>
-                <p>Вопрос <span id="questionNumber">1</span> из 3</p>
+        <!-- Экран окончания игры -->
+        <div id="endScreen" class="hidden">
+            <div class="character-img">🏆</div>
+            <div class="story-text" id="endText">
+                <!-- Текст окончания будет здесь -->
             </div>
-            
-            <div class="game-card">
-                <div class="question" id="questionText">Загрузка вопроса...</div>
-                
-                <div class="options" id="optionsContainer">
-                    <!-- Варианты ответов будут здесь -->
-                </div>
-
-                <div class="result" id="quizResult" style="display: none;"></div>
-
-                <button class="btn" onclick="nextQuestion()" id="nextBtn" style="display: none;">Следующий вопрос</button>
-                <button class="btn btn-secondary" onclick="saveQuizScore()" id="saveBtn" style="display: none;">💾 Сохранить результат</button>
-                <button class="back-btn" onclick="backToMenu()">← Назад в меню</button>
-            </div>
-        </div>
-
-        <!-- Статистика -->
-        <div id="statsScreen" style="display: none;">
-            <div class="header">
-                <h1>📊 Статистика</h1>
-            </div>
-            
-            <div class="game-card">
-                <h3>Ваши достижения:</h3>
-                <div class="stats">
-                    <div class="stat-item">
-                        <div>🖱️ Кликов всего</div>
-                        <div id="totalClicks">0</div>
-                    </div>
-                    <div class="stat-item">
-                        <div>🎯 Правильных ответов</div>
-                        <div id="correctAnswers">0</div>
-                    </div>
-                </div>
-                <button class="back-btn" onclick="backToMenu()">← Назад в меню</button>
+            <div class="choices">
+                <button class="choice-btn success" onclick="restartGame()">🎮 Начать заново</button>
+                <button class="choice-btn" onclick="saveResults()">💾 Сохранить результат</button>
             </div>
         </div>
     </div>
 
     <script>
         // Данные игрока
-        let playerData = {
-            clicks: 0,
-            power: 1,
-            quizScore: 0,
-            currentQuizQuestion: 0,
-            correctAnswers: 0
+        let player = {
+            health: 100,
+            energy: 100,
+            knowledge: 30,
+            money: 5000,
+            day: 1,
+            maxDays: 30,
+            reputation: 0,
+            location: "Медицинский университет",
+            storyProgress: 0
         };
 
-        // Вопросы для викторины
-        const quizQuestions = [
+        // Игровые события
+        const gameEvents = [
+            // День 1-5: Начало обучения
             {
-                question: "Какая планета самая большая в Солнечной системе?",
-                options: ["Земля", "Марс", "Юпитер", "Сатурн"],
-                correct: 2
+                id: 1,
+                text: "Первый день в медицинском университете! Вы сидите на лекции по анатомии. Преподаватель предлагает остаться после пар для дополнительных занятий.",
+                choices: [
+                    { text: "✅ Остаться на доп. занятия", effect: { energy: -20, knowledge: +15 }, next: 2 },
+                    { text: "🚶‍♀️ Уйти домой отдыхать", effect: { energy: +10, knowledge: +5 }, next: 3 }
+                ]
             },
             {
-                question: "Сколько цветов в радуге?",
-                options: ["5", "6", "7", "8"],
-                correct: 2
+                id: 2,
+                text: "Вы остались на дополнительные занятия. Преподаватель заметил ваше усердие и предложил стать его ассистентом в исследовательском проекте!",
+                choices: [
+                    { text: "🎯 Согласиться на проект", effect: { energy: -15, knowledge: +20, money: +1000 }, next: 4 },
+                    { text: "📚 Вежливо отказаться", effect: { knowledge: +10 }, next: 5 }
+                ]
             },
             {
-                question: "Какое животное является символом России?",
-                options: ["Медведь", "Орел", "Волк", "Тигр"],
-                correct: 0
+                id: 3,
+                text: "Вы решили отдохнуть. По пути домой встретили одногруппника, который предложил вместе готовиться к экзаменам.",
+                choices: [
+                    { text: "👥 Согласиться на совместную подготовку", effect: { knowledge: +10, energy: -10 }, next: 6 },
+                    { text: "🏠 Пойти домой одной", effect: { energy: +15 }, next: 7 }
+                ]
+            },
+            // День 6-10: Первая практика
+            {
+                id: 4,
+                text: "Началась первая практика в больнице! Вас направили в отделение скорой помощи. Поступает пациент с острыми болями в животе.",
+                choices: [
+                    { text: "🔍 Тщательно обследовать пациента", effect: { knowledge: +15, energy: -20 }, next: 8 },
+                    { text: "💊 Дать обезболивающее и наблюдать", effect: { knowledge: +5, energy: -10 }, next: 9 }
+                ]
+            },
+            {
+                id: 5,
+                text: "Во время дежурства к вам подходит пожилая пациентка. Она просит помощи, но у вас много работы.",
+                choices: [
+                    { text: "👵 Помочь пациентке", effect: { energy: -15, reputation: +10 }, next: 10 },
+                    { text: "⏰ Вежливо отказаться", effect: { reputation: -5 }, next: 11 }
+                ]
+            },
+            // День 11-15: Сложные решения
+            {
+                id: 6,
+                text: "На обходе вы обнаруживаете, что пациенту стало хуже. Нужно срочно принимать решение!",
+                choices: [
+                    { text: "🚨 Вызвать старшего врача", effect: { knowledge: +10, reputation: +5 }, next: 12 },
+                    { text: "💉 Самостоятельно оказать помощь", effect: { knowledge: +20, health: -10, reputation: +15 }, next: 13 }
+                ]
+            },
+            {
+                id: 7,
+                text: "Вам предлагают участие в международной медицинской конференции, но нужно готовить доклад в ущерб отдыху.",
+                choices: [
+                    { text: "✈️ Подготовить доклад для конференции", effect: { knowledge: +25, energy: -30, money: +2000 }, next: 14 },
+                    { text: "😴 Отдохнуть и восстановить силы", effect: { energy: +25, health: +10 }, next: 15 }
+                ]
+            },
+            // День 16-20: Кризис
+            {
+                id: 8,
+                text: "Эпидемия гриппа! Больница переполнена, вы работаете сверхурочно. Чувствуете сильную усталость.",
+                choices: [
+                    { text: "💪 Продолжать работать", effect: { health: -20, energy: -30, reputation: +20 }, next: 16 },
+                    { text: "🏥 Взять перерыв", effect: { health: +10, energy: +15, reputation: -10 }, next: 17 }
+                ]
+            },
+            // День 21-25: Специализация
+            {
+                id: 9,
+                text: "Пришло время выбирать специализацию! Куда вы хотите пойти?",
+                choices: [
+                    { text: "❤️ Кардиология", effect: { knowledge: +20 }, next: 18 },
+                    { text: "🧠 Неврология", effect: { knowledge: +15 }, next: 19 },
+                    { text: "👶 Педиатрия", effect: { knowledge: +10, reputation: +10 }, next: 20 }
+                ]
+            },
+            // День 26-30: Финальные испытания
+            {
+                id: 10,
+                text: "Выпускные экзамены! От ваших результатов зависит будущая карьера. Как будете готовиться?",
+                choices: [
+                    { text: "📚 Усердная подготовка", effect: { knowledge: +30, energy: -40 }, next: 21 },
+                    { text: "⚖️ Сбалансированный подход", effect: { knowledge: +20, energy: -20, health: -10 }, next: 22 }
+                ]
             }
         ];
 
-        // Инициализация Telegram Web App
-        function initTelegramApp() {
+        // Финальные события
+        const finalEvents = {
+            success: {
+                title: "🎉 Блестящий успех!",
+                text: "Вы стали выдающимся врачом! Ваши знания, dedication и забота о пациентах помогли вам достичь невероятных высот в медицине. Юля стала тем врачом, о котором мечтала!"
+            },
+            good: {
+                title: "👍 Хороший результат",
+                text: "Вы стали компетентным врачом. Хотя были некоторые трудности, вы справились и теперь помогаете людям. Карьера развивается успешно!"
+            },
+            average: {
+                title: "😐 Неплохо, но можно лучше",
+                text: "Вы закончили обучение, но могли бы достичь большего. Возможно, стоит больше уделять внимания учебе и практике."
+            },
+            fail: {
+                title: "❌ Нужно больше стараний",
+                text: "К сожалению, вы не справились с нагрузкой медицинского университета. Может стоит пересмотреть свой подход к обучению?"
+            }
+        };
+
+        // Инициализация игры
+        function initGame() {
+            document.getElementById('loadingScreen').classList.add('hidden');
+            document.getElementById('gameScreen').classList.remove('hidden');
+            showEvent(1);
+            updateStats();
+        }
+
+        // Показать событие
+        function showEvent(eventId) {
+            const event = gameEvents.find(e => e.id === eventId);
+            if (!event) {
+                endGame();
+                return;
+            }
+
+            document.getElementById('storyText').textContent = event.text;
+            document.getElementById('location').textContent = player.location;
+            document.getElementById('dayCounter').textContent = `День ${player.day} из ${player.maxDays}`;
+
+            // Обновляем эмодзи персонажа в зависимости от состояния
+            updateCharacterEmoji();
+
+            // Очищаем и создаем кнопки выбора
+            const choicesContainer = document.getElementById('choicesContainer');
+            choicesContainer.innerHTML = '';
+
+            event.choices.forEach((choice, index) => {
+                const button = document.createElement('button');
+                button.className = `choice-btn ${index % 3 === 1 ? 'secondary' : index % 3 === 2 ? 'success' : ''}`;
+                button.textContent = choice.text;
+                button.onclick = () => makeChoice(choice);
+                choicesContainer.appendChild(button);
+            });
+
+            // Анимация появления
+            document.getElementById('gameScreen').classList.add('fade-in');
+            setTimeout(() => {
+                document.getElementById('gameScreen').classList.remove('fade-in');
+            }, 500);
+        }
+
+        // Сделать выбор
+        function makeChoice(choice) {
+            // Применяем эффекты выбора
+            applyEffects(choice.effect);
+
+            // Показываем результат
+            showEventResult(choice.effect);
+
+            // Переходим к следующему событию
+            player.day += 2; // Каждое событие - 2 дня
+            player.storyProgress++;
+
+            if (player.day >= player.maxDays) {
+                endGame();
+            } else {
+                setTimeout(() => {
+                    showEvent(choice.next);
+                }, 2000);
+            }
+        }
+
+        // Применить эффекты
+        function applyEffects(effects) {
+            Object.keys(effects).forEach(stat => {
+                player[stat] = Math.max(0, Math.min(100, player[stat] + effects[stat]));
+            });
+            updateStats();
+        }
+
+        // Показать результат события
+        function showEventResult(effects) {
+            const resultDiv = document.getElementById('eventResult');
+            let resultText = "";
+
+            Object.keys(effects).forEach(stat => {
+                if (effects[stat] > 0) {
+                    resultText += `+${effects[stat]} ${getStatName(stat)}\n`;
+                } else if (effects[stat] < 0) {
+                    resultText += `${effects[stat]} ${getStatName(stat)}\n`;
+                }
+            });
+
+            resultDiv.textContent = resultText || "Изменений нет";
+            resultDiv.classList.remove('hidden');
+
+            setTimeout(() => {
+                resultDiv.classList.add('hidden');
+            }, 2000);
+        }
+
+        // Обновить статистику
+        function updateStats() {
+            document.getElementById('healthBar').style.width = player.health + '%';
+            document.getElementById('energyBar').style.width = player.energy + '%';
+            document.getElementById('knowledgeBar').style.width = player.knowledge + '%';
+            document.getElementById('moneyBar').style.width = Math.min(100, player.money / 100) + '%';
+        }
+
+        // Обновить эмодзи персонажа
+        function updateCharacterEmoji() {
+            let emoji = "👩‍⚕️";
+            
+            if (player.energy < 30) emoji = "😴";
+            else if (player.health < 50) emoji = "🤕";
+            else if (player.knowledge > 70) emoji = "👩‍🎓";
+            else if (player.money > 8000) emoji = "💼";
+
+            document.getElementById('characterEmoji').textContent = emoji;
+        }
+
+        // Получить название характеристики
+        function getStatName(stat) {
+            const names = {
+                health: "❤️ Здоровье",
+                energy: "⚡ Энергия",
+                knowledge: "📚 Знания",
+                money: "💰 Деньги",
+                reputation: "⭐ Репутация"
+            };
+            return names[stat] || stat;
+        }
+
+        // Завершение игры
+        function endGame() {
+            document.getElementById('gameScreen').classList.add('hidden');
+            document.getElementById('endScreen').classList.remove('hidden');
+
+            let ending;
+            const score = (player.knowledge * 0.4) + (player.reputation * 0.3) + (player.health * 0.2) + (player.money * 0.1);
+
+            if (score >= 80) ending = finalEvents.success;
+            else if (score >= 60) ending = finalEvents.good;
+            else if (score >= 40) ending = finalEvents.average;
+            else ending = finalEvents.fail;
+
+            document.getElementById('endText').innerHTML = `
+                <h2>${ending.title}</h2>
+                <p>${ending.text}</p>
+                <br>
+                <p><strong>Ваши итоговые показатели:</strong></p>
+                <p>Знания: ${player.knowledge}% | Репутация: ${player.reputation}%</p>
+                <p>Здоровье: ${player.health}% | Финансы: ${player.money}₽</p>
+            `;
+        }
+
+        // Начать заново
+        function restartGame() {
+            player = {
+                health: 100,
+                energy: 100,
+                knowledge: 30,
+                money: 5000,
+                day: 1,
+                maxDays: 30,
+                reputation: 0,
+                location: "Медицинский университет",
+                storyProgress: 0
+            };
+            document.getElementById('endScreen').classList.add('hidden');
+            document.getElementById('gameScreen').classList.remove('hidden');
+            showEvent(1);
+            updateStats();
+        }
+
+        // Сохранить результаты
+        function saveResults() {
+            const gameData = {
+                action: "julia_game_completed",
+                score: player.knowledge + player.reputation,
+                knowledge: player.knowledge,
+                reputation: player.reputation,
+                health: player.health,
+                money: player.money,
+                days: player.day,
+                finalScore: (player.knowledge * 0.4) + (player.reputation * 0.3) + (player.health * 0.2) + (player.money * 0.1)
+            };
+
+            if (window.Telegram && Telegram.WebApp) {
+                Telegram.WebApp.sendData(JSON.stringify(gameData));
+            } else {
+                alert("Результаты сохранены! Очки: " + gameData.finalScore.toFixed(1));
+            }
+        }
+
+        // Запуск игры при загрузке
+        document.addEventListener('DOMContentLoaded', function() {
+            // Инициализация Telegram Web App
             if (window.Telegram && Telegram.WebApp) {
                 Telegram.WebApp.ready();
                 Telegram.WebApp.expand();
-                
-                // Можно получить информацию о пользователе
-                const user = Telegram.WebApp.initDataUnsafe.user;
-                if (user) {
-                    console.log("Пользователь:", user);
-                    // Можно персонализировать приветствие
-                    document.querySelector('#mainMenu .header h1').textContent = `🎮 Добро пожаловать, ${user.first_name}!`;
-                }
-            }
-        }
-
-        // Навигация по играм
-        function startGame(gameType) {
-            document.getElementById('mainMenu').style.display = 'none';
-            
-            if (gameType === 'clicker') {
-                document.getElementById('clickerGame').style.display = 'block';
-                resetClicker();
-            } else if (gameType === 'quiz') {
-                document.getElementById('quizGame').style.display = 'block';
-                startQuiz();
-            }
-        }
-
-        function backToMenu() {
-            document.getElementById('mainMenu').style.display = 'block';
-            document.getElementById('clickerGame').style.display = 'none';
-            document.getElementById('quizGame').style.display = 'none';
-            document.getElementById('statsScreen').style.display = 'none';
-        }
-
-        function showStats() {
-            document.getElementById('mainMenu').style.display = 'none';
-            document.getElementById('statsScreen').style.display = 'block';
-            
-            document.getElementById('totalClicks').textContent = playerData.clicks;
-            document.getElementById('correctAnswers').textContent = playerData.correctAnswers;
-        }
-
-        // Логика игры-кликера
-        function incrementClick() {
-            playerData.clicks += playerData.power;
-            updateClickerDisplay();
-        }
-
-        function upgradePower() {
-            if (playerData.clicks >= 10) {
-                playerData.clicks -= 10;
-                playerData.power += 1;
-                updateClickerDisplay();
-            } else {
-                alert('Недостаточно очков! Нужно 10 очков.');
-            }
-        }
-
-        function updateClickerDisplay() {
-            document.getElementById('clickCount').textContent = playerData.clicks;
-            document.getElementById('powerLevel').textContent = playerData.power;
-            document.getElementById('clicksPerSecond').textContent = playerData.power;
-        }
-
-        function resetClicker() {
-            playerData.clicks = 0;
-            playerData.power = 1;
-            updateClickerDisplay();
-        }
-
-        // Логика викторины
-        function startQuiz() {
-            playerData.currentQuizQuestion = 0;
-            playerData.quizScore = 0;
-            showQuestion();
-        }
-
-        function showQuestion() {
-            const question = quizQuestions[playerData.currentQuizQuestion];
-            document.getElementById('questionText').textContent = question.question;
-            document.getElementById('questionNumber').textContent = playerData.currentQuizQuestion + 1;
-            
-            const optionsContainer = document.getElementById('optionsContainer');
-            optionsContainer.innerHTML = '';
-            
-            question.options.forEach((option, index) => {
-                const button = document.createElement('button');
-                button.className = 'option-btn';
-                button.textContent = option;
-                button.onclick = () => checkAnswer(index);
-                optionsContainer.appendChild(button);
-            });
-            
-            document.getElementById('quizResult').style.display = 'none';
-            document.getElementById('nextBtn').style.display = 'none';
-            document.getElementById('saveBtn').style.display = 'none';
-        }
-
-        function checkAnswer(selectedIndex) {
-            const question = quizQuestions[playerData.currentQuizQuestion];
-            const options = document.querySelectorAll('.option-btn');
-            const resultDiv = document.getElementById('quizResult');
-            
-            options.forEach((btn, index) => {
-                if (index === question.correct) {
-                    btn.classList.add('correct');
-                } else if (index === selectedIndex && index !== question.correct) {
-                    btn.classList.add('wrong');
-                }
-                btn.disabled = true;
-            });
-            
-            if (selectedIndex === question.correct) {
-                playerData.quizScore++;
-                playerData.correctAnswers++;
-                resultDiv.textContent = '✅ Правильно!';
-                resultDiv.className = 'result success';
-            } else {
-                resultDiv.textContent = '❌ Неправильно!';
-                resultDiv.className = 'result error';
             }
             
-            resultDiv.style.display = 'block';
-            
-            if (playerData.currentQuizQuestion < quizQuestions.length - 1) {
-                document.getElementById('nextBtn').style.display = 'block';
-            } else {
-                document.getElementById('saveBtn').style.display = 'block';
-            }
-        }
-
-        function nextQuestion() {
-            playerData.currentQuizQuestion++;
-            showQuestion();
-        }
-
-        // Отправка данных в бота
-        function sendToBot(data) {
-            if (window.Telegram && Telegram.WebApp) {
-                Telegram.WebApp.sendData(JSON.stringify(data));
-                // Telegram.WebApp.close(); // Можно закрыть или оставить открытым
-            } else {
-                alert('Данные для отправки: ' + JSON.stringify(data));
-                console.log('Данные для бота:', data);
-            }
-        }
-
-        function saveClickerScore() {
-            const gameData = {
-                action: "clicker_score",
-                score: playerData.clicks,
-                power: playerData.power,
-                game: "clicker",
-                timestamp: new Date().toISOString()
-            };
-            sendToBot(gameData);
-        }
-
-        function saveQuizScore() {
-            const gameData = {
-                action: "quiz_score",
-                score: playerData.quizScore,
-                totalQuestions: quizQuestions.length,
-                game: "quiz",
-                timestamp: new Date().toISOString()
-            };
-            sendToBot(gameData);
-        }
-
-        // Инициализация при загрузке
-        document.addEventListener('DOMContentLoaded', function() {
-            initTelegramApp();
-            updateClickerDisplay();
+            // Запускаем игру через 2 секунды (для эффекта загрузки)
+            setTimeout(initGame, 2000);
         });
     </script>
 </body>
