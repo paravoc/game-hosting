@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Заказ еды</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .container {
+            max-width: 400px;
+            margin: 0 auto;
+        }
+        .menu-item {
+            background: rgba(255,255,255,0.1);
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .menu-item:hover {
+            background: rgba(255,255,255,0.2);
+        }
+        .counter {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin: 10px 0;
+        }
+        .counter button {
+            width: 30px;
+            height: 30px;
+            border: none;
+            border-radius: 50%;
+            background: white;
+            color: #667eea;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .order-btn {
+            width: 100%;
+            padding: 15px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🍕 Меню заказа</h1>
+        
+        <div class="menu-item" onclick="selectItem('Пицца Пеперони', 450)">
+            <h3>🍕 Пицца Пеперони</h3>
+            <p>450 руб.</p>
+        </div>
+        
+        <div class="menu-item" onclick="selectItem('Бургер Чизбургер', 320)">
+            <h3>🍔 Бургер Чизбургер</h3>
+            <p>320 руб.</p>
+        </div>
+        
+        <div class="menu-item" onclick="selectItem('Салат Цезарь', 280)">
+            <h3>🥗 Салат Цезарь</h3>
+            <p>280 руб.</p>
+        </div>
+        
+        <div id="selection" style="display: none;">
+            <h3>Выбрано: <span id="selected-item"></span></h3>
+            <div class="counter">
+                <button onclick="changeQuantity(-1)">-</button>
+                <span id="quantity">1</span>
+                <button onclick="changeQuantity(1)">+</button>
+            </div>
+            <p>Итого: <span id="total">0</span> руб.</p>
+            <button class="order-btn" onclick="sendOrder()">✅ Заказать</button>
+        </div>
+    </div>
+
+    <script>
+        let selectedItem = null;
+        let itemPrice = 0;
+        let quantity = 1;
+        
+        function selectItem(name, price) {
+            selectedItem = name;
+            itemPrice = price;
+            quantity = 1;
+            updateSelection();
+        }
+        
+        function changeQuantity(change) {
+            quantity = Math.max(1, quantity + change);
+            updateSelection();
+        }
+        
+        function updateSelection() {
+            document.getElementById('selected-item').textContent = selectedItem;
+            document.getElementById('quantity').textContent = quantity;
+            document.getElementById('total').textContent = itemPrice * quantity;
+            document.getElementById('selection').style.display = 'block';
+        }
+        
+        function sendOrder() {
+            const orderData = {
+                item: selectedItem,
+                quantity: quantity,
+                total: itemPrice * quantity,
+                timestamp: new Date().toISOString()
+            };
+            
+            // Отправляем данные в бота
+            Telegram.WebApp.sendData(JSON.stringify(orderData));
+            
+            // Закрываем Web App
+            Telegram.WebApp.close();
+        }
+        
+        // Инициализация Web App
+        Telegram.WebApp.ready();
+        Telegram.WebApp.expand(); // Раскрываем на весь экран
+    </script>
+</body>
+</html>
